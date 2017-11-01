@@ -17,6 +17,7 @@ public class GameManager : MonoBehaviour {
 
     public void StartGame () {
         ScreenManager.Instance.OpenScreen(ScreenManager.Instance.GameScreen);
+        TheTubeManager.Instance.SetModeGame();
     }
 
     public void GameOver () {

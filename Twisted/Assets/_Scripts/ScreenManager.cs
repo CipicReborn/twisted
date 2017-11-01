@@ -29,7 +29,7 @@ public class ScreenManager : MonoBehaviour {
         m_screenToOpen = screenToOpen;
         TransitionToNewScreen();
     }
-
+    
     #endregion
 
     #region PRIVATE
@@ -42,9 +42,11 @@ public class ScreenManager : MonoBehaviour {
     private Animator m_screenToOpen;
     private int m_isOpenParameter;
 
+    private void Awake () {
+        instance = this;
+    }
 
     void OnEnable () {
-        instance = this;
         m_isOpenParameter = Animator.StringToHash(OPEN_TRANSITION_NAME);
         if (StartScreen == null)
             return;
