@@ -27,6 +27,10 @@ public class TheTubeManager : MonoBehaviour {
         m_DoAction = DoActionRun;
     }
 
+    public void SetModeVoid () {
+        m_tubeBuilder.StopGeneratingSegments();
+        m_DoAction = DoActionVoid;
+    }
     public void SetModeMenu () {
         m_tubeBuilder.StopGeneratingSegments();
         m_tubeCleaner.ClearAllSegments();
