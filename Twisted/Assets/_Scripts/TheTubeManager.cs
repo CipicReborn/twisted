@@ -34,9 +34,7 @@ public class TheTubeManager : MonoBehaviour {
     public void SetModeMenu () {
         m_tubeBuilder.StopGeneratingSegments();
         m_tubeCleaner.ClearAllSegments();
-        InitialiseRotation();
-        m_currentSegment = m_tubeBuilder.GenerateInitialSegments();
-        Debug.Log(m_currentSegment);
+        Init();
     }
 
     public void GoToNextSegment () {
@@ -44,6 +42,15 @@ public class TheTubeManager : MonoBehaviour {
         Segment nextSegment = transform.GetChild(nextSegmentIndex).GetComponent<Segment>();
         Rotate(nextSegment.GetOffset());
         m_currentSegment = nextSegment;
+    }
+
+    public float[] GetCurrentSegmentBoundaries () {
+        SetCurrentSegmentBoundaries();
+        return m_currentSegmentBoundaries;
+    }
+
+    public void ShowCurrentSegment() {
+        m_currentSegment.transform.GetChild(0).GetComponent<MeshRenderer>().material = Resources.Load("RedFloor") as Material;
     }
 
     #endregion
@@ -58,6 +65,7 @@ public class TheTubeManager : MonoBehaviour {
     
     Segment m_currentSegment;
     int m_currentQuaternionIndex = 0;
+    float[] m_currentSegmentBoundaries = { 0, 0 };
 
     readonly Quaternion[] ROTATIONS = {
         Quaternion.identity,
@@ -76,6 +84,12 @@ public class TheTubeManager : MonoBehaviour {
         m_tubeCleaner = GetComponent<TubeCleaner>();
 
         m_DoAction = DoActionVoid;
+    }
+
+    private void Init () {
+        transform.position = Vector3.zero;
+        InitialiseRotation();
+        m_currentSegment = m_tubeBuilder.GenerateInitialSegments();
     }
 
     private void Update () {
@@ -122,6 +136,11 @@ public class TheTubeManager : MonoBehaviour {
             yield return null;
         }
         transform.rotation = to;
+    }
+
+    private void SetCurrentSegmentBoundaries () {
+        m_currentSegmentBoundaries[0] = m_currentSegment.transform.position.z;
+        m_currentSegmentBoundaries[1] = m_currentSegment.transform.position.z + m_currentSegment.GetSize();
     }
 
     #endregion

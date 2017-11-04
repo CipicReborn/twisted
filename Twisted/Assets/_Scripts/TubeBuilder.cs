@@ -7,6 +7,8 @@ public class TubeBuilder: MonoBehaviour {
     #region PUBLIC
 
     public int TubeLength;
+    public int firstSegmentSize = 0;
+    public int[] sizes = { 0 , 0 };
 
     public float initialSegmentsApparitionInterval = 0;
     public float normalSegmentsApparitionInterval = 0;
@@ -57,12 +59,11 @@ public class TubeBuilder: MonoBehaviour {
     }
 
     private Segment AddFirstSegment () {
-        Debug.Log(SegmentsPool.Instance);
         var firstSegment = SegmentsPool.Instance.GetSegment();
         firstSegment.transform.SetParent(transform);
         SetPosition(firstSegment, 0);
         SetRotation(firstSegment, 0);
-        SetScale(firstSegment, 6);
+        SetScale(firstSegment, firstSegmentSize);
         firstSegment.Enable();
         m_lastSegmentAdded = firstSegment;
         return firstSegment;
@@ -103,12 +104,12 @@ public class TubeBuilder: MonoBehaviour {
         }
         float angle = ANGLES[index];
         m_lastSegmentAngleIndex = index;
-        segment.SetRotation(angle, index, offset);
+        segment.SetRotation(angle, offset);
     }
 
     private void SetScale (Segment segment, int size = 0) {
         if (size == 0) {
-            size = Random.Range(2, 4);
+            size = sizes[Random.Range(0, sizes.Length)];
         }
         segment.SetSize(size);
     }

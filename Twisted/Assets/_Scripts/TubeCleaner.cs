@@ -9,7 +9,8 @@ public class TubeCleaner : MonoBehaviour {
     public void ClearPassedSegments () {
         for (int i = 0; i < transform.childCount; i++) {
             var lChild = transform.GetChild(0);
-            if (lChild.position.z < m_segmentsClearanceZBoundary) {
+            var end = lChild.position.z + lChild.GetChild(0).localScale.z;
+            if (end < m_segmentsClearanceZBoundary) {
                 ClearSegment(lChild);
             }
             else {

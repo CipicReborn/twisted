@@ -28,9 +28,8 @@ public class Segment : MonoBehaviour, IPoolable {
         return m_floor.localScale.z;
     }
 
-    public void SetRotation (float angle, int index, int offset) {
+    public void SetRotation (float angle, int offset) {
         transform.localRotation = Quaternion.AngleAxis(angle, Vector3.forward);
-        m_angleIndex = index;
         m_angleOffset = offset;
     }
 
@@ -49,7 +48,6 @@ public class Segment : MonoBehaviour, IPoolable {
 
     private Transform m_floor;
     private float m_yPos;
-    private int m_angleIndex;
     private int m_angleOffset;
 
     private void Awake () {

@@ -34,6 +34,7 @@ public class PlayerController : MonoBehaviour {
     #region PRIVATE
 
     const string JUMP_PARAMETER_NAME = "startJump";
+    const string FALL_PARAMETER_NAME = "fall";
     const string IDLE_STATE = "Idle";
     const string JUMP_STATE = "Jump";
 
@@ -42,23 +43,30 @@ public class PlayerController : MonoBehaviour {
     Animator m_animator;
     Transform m_graphicAsset;
     int m_jumpParameterId = 0;
+    int m_fallParameterId = 0;
     float m_perimeter = 0;
     bool m_isJumping = false;
     int m_jumpsToDo = 0;
+    Vector3 m_initialPosition;
 
     private void Awake () {
         m_animator = GetComponent<Animator>();
         m_jumpParameterId = Animator.StringToHash(JUMP_PARAMETER_NAME);
+        m_fallParameterId = Animator.StringToHash(FALL_PARAMETER_NAME);
         m_graphicAsset = transform.GetChild(0);
         m_perimeter = 2.0f * Mathf.PI * (m_graphicAsset.localScale.x / 2.0f);
+        m_initialPosition = transform.position;
 
         Init();
     }
 
     private void Init () {
         m_doAction = DoActionVoid;
+        transform.position = m_initialPosition;
+        transform.rotation = Quaternion.identity;
         m_isJumping = false;
         m_animator.SetBool(m_jumpParameterId, false);
+        m_animator.SetBool(m_fallParameterId, false);
         m_jumpsToDo = 0;
     }
 
@@ -71,6 +79,12 @@ public class PlayerController : MonoBehaviour {
     private void DoActionRoll () {
         float angularSpeed = TheTubeManager.Instance.Speed * 360.0f / m_perimeter;
         m_graphicAsset.Rotate(transform.rotation.eulerAngles + new Vector3(angularSpeed * Time.deltaTime, 0, 0));
+        if (!m_isJumping) {
+            if (GameManager.Instance.IsGameOver()) {
+                Fall();
+                GameManager.Instance.GameOver("Roll in the Void");
+            }
+        }
     }
 
     private IEnumerator DoJump () {
@@ -97,13 +111,21 @@ public class PlayerController : MonoBehaviour {
     private void SetLanded () {
         m_isJumping = false;
         if (GameManager.Instance.IsGameOver()) {
+            GameManager.Instance.GameOver("Jump in the Void");
+            Fall();
             return;
+        }
+        else {
+            GameManager.Instance.IncrementScore();
         }
         if (m_jumpsToDo > 0) {
             Jump();
         }
     }
 
+    private void Fall () {
+        m_animator.SetBool(m_fallParameterId, true);
+    }
     #endregion
 
 }
