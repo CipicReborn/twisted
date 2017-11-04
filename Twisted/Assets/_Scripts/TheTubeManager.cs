@@ -21,10 +21,16 @@ public class TheTubeManager : MonoBehaviour {
 
     public int TubeLength;
     public float Speed = 0;
+    public float initialSegmentsApparitionInterval = 0;
+    public float normalSegmentsApparitionInterval = 0;
 
-    public void SetModeGame () {
-        m_DoAction = DoActionRun;
+    public void SetModeStartGame () {
         StartCoroutine(AddFirstSegments());
+        m_DoAction = DoActionRun;
+    }
+
+    public void SetModeRunGame () {
+        m_addNewSegments = StartCoroutine(EvaluateNewSegmentsNeed());
     }
 
     public void SetModeMenu () {
@@ -37,22 +43,21 @@ public class TheTubeManager : MonoBehaviour {
     #region PRIVATE
 
     System.Action m_DoAction;
-    Queue<Segment> m_segments;
-    float m_cameraPositionZ = 0;
-    Segment lastSegmentAdded;
     Coroutine m_addNewSegments;
-    private const float ANGLE_SPREAD = 45;
+
+    Queue<Segment> m_segments;
+    Segment m_lastSegmentAdded;
+    int m_lastSegmentAngleIndex = 0;
+    float m_segmentsClearanceZBoundary = 0;
+    
+    private readonly float[] ANGLES = { 0, 45.0f, 90.0f, 135.0f, 180.0f, 225.0f, 270.0f, 315.0f };
 
     private void Awake () {
         instance = this;
         m_DoAction = DoActionVoid;
         m_segments = new Queue<Segment>();
-        m_cameraPositionZ = Camera.main.transform.position.z;
+        m_segmentsClearanceZBoundary = Camera.main.transform.position.z;
     }
-
-    private void Start () {
-        
-	}
 
     private void Update () {
         m_DoAction();
@@ -61,11 +66,8 @@ public class TheTubeManager : MonoBehaviour {
     private void DoActionVoid () {}
 
     private void DoActionRun () {
-
         Move();
         ClearPassedSegments();
-        EvaluateNewSegmentsNeed();
-
     }
 
     private void Move () {
@@ -73,8 +75,7 @@ public class TheTubeManager : MonoBehaviour {
     }
 
     private void ClearPassedSegments () {
-        
-        while (m_segments.Peek().transform.position.z < m_cameraPositionZ) {
+        while (m_segments.Peek().transform.position.z < m_segmentsClearanceZBoundary) {
             SegmentsPool.PutBackToPool(m_segments.Dequeue());
         }
     }
@@ -83,9 +84,9 @@ public class TheTubeManager : MonoBehaviour {
         AddFirstSegment();
         for (int i = 1; i <= TubeLength; i++) {
             AddNewSegment();
-            yield return new WaitForSeconds(0.2f);
+            yield return new WaitForSeconds(initialSegmentsApparitionInterval);
         }
-        m_addNewSegments = StartCoroutine(EvaluateNewSegmentsNeed());
+        SetModeRunGame();
     }
 
     private IEnumerator EvaluateNewSegmentsNeed () {
@@ -93,7 +94,7 @@ public class TheTubeManager : MonoBehaviour {
             if (m_segments.Count < TubeLength) {
                 AddNewSegment();
             }
-            yield return new WaitForSeconds(1);
+            yield return new WaitForSeconds(normalSegmentsApparitionInterval);
         }
     }
 
@@ -105,7 +106,7 @@ public class TheTubeManager : MonoBehaviour {
         SetScale(firstSegment, 6);
         firstSegment.Enable();
         m_segments.Enqueue(firstSegment);
-        lastSegmentAdded = firstSegment;
+        m_lastSegmentAdded = firstSegment;
     }
 
     private void AddNewSegment () {
@@ -113,7 +114,7 @@ public class TheTubeManager : MonoBehaviour {
         SetupTransform(newSegment);
         newSegment.Enable();
         m_segments.Enqueue(newSegment);
-        lastSegmentAdded = newSegment;
+        m_lastSegmentAdded = newSegment;
     }
 
     private void SetupTransform (Segment segment) {
@@ -125,24 +126,35 @@ public class TheTubeManager : MonoBehaviour {
 
     private void SetPosition (Segment segment, float pos = -1) {
         if (pos == -1) {
-            pos = lastSegmentAdded.transform.localPosition.z + lastSegmentAdded.GetSize() + 0.5f;
+            pos = m_lastSegmentAdded.transform.localPosition.z + m_lastSegmentAdded.GetSize() + 0.5f;
         }
         segment.transform.localPosition = new Vector3(0, 0, pos);
     }
 
-    private void SetRotation (Segment segment, float angle = -1) {
-        if (angle == -1) {
-            angle = 0;
-            Vector3 forward = Vector3.forward;
-            lastSegmentAdded.transform.rotation.ToAngleAxis(out angle, out forward);
+    private void SetRotation (Segment segment, int index = -1) {
+        if (index == -1) {
+            int prevIndex = m_lastSegmentAngleIndex;
             int random = Random.Range(0, 2);
-            float factor = 1;
+            int offset = 1;
             if (random == 0) {
-                random *= -1;
+                offset = -1;
             }
-            angle += factor * ANGLE_SPREAD;
+            index = prevIndex + offset;
+            LoopValue(ref index, 0, ANGLES.Length - 1);
         }
+        float angle = ANGLES[index];
+        m_lastSegmentAngleIndex = index;
         segment.transform.rotation = Quaternion.AngleAxis(angle, Vector3.forward);
+        Debug.Log("Set Rotation to <" + angle.ToString() + ">");
+    }
+
+    void LoopValue (ref int value, int min, int max) {
+        if (value == max + 1) {
+            value = min;
+        }
+        else if (value == min - 1) {
+            value = max;
+        }
     }
 
     private void SetScale (Segment segment, int size = 0) {
