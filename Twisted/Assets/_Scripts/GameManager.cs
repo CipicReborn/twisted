@@ -7,8 +7,8 @@ public class GameManager : MonoBehaviour {
     
 	// Use this for initialization
 	void Start () {
-		
-	}
+        TheTubeManager.Instance.SetModeMenu();
+    }
 	
 	// Update is called once per frame
 	void Update () {
@@ -17,7 +17,7 @@ public class GameManager : MonoBehaviour {
 
     public void StartGame () {
         ScreenManager.Instance.OpenScreen(ScreenManager.Instance.GameScreen);
-        TheTubeManager.Instance.SetModeStartGame();
+        TheTubeManager.Instance.SetModeGame();
     }
 
     public void GameOver () {
