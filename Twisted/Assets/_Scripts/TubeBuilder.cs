@@ -99,20 +99,11 @@ public class TubeBuilder: MonoBehaviour {
                 offset = -1;
             }
             index = prevIndex + offset;
-            LoopValue(ref index, 0, ANGLES.Length - 1);
+            Utils.LoopValue(ref index, 0, ANGLES.Length - 1);
         }
         float angle = ANGLES[index];
         m_lastSegmentAngleIndex = index;
         segment.SetRotation(angle, index, offset);
-    }
-
-    private void LoopValue (ref int value, int min, int max) {
-        if (value == max + 1) {
-            value = min;
-        }
-        else if (value == min - 1) {
-            value = max;
-        }
     }
 
     private void SetScale (Segment segment, int size = 0) {
