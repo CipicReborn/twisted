@@ -29,11 +29,18 @@ public class Segment : MonoBehaviour, IPoolable {
     }
 
     public void SetRotation (float angle, int index, int offset) {
-        transform.rotation = Quaternion.AngleAxis(angle, Vector3.forward);
+        transform.localRotation = Quaternion.AngleAxis(angle, Vector3.forward);
         m_angleIndex = index;
         m_angleOffset = offset;
     }
 
+    public int GetOffset () {
+        return m_angleOffset;
+    }
+
+    public float GetZAngle () {
+        return transform.rotation.eulerAngles.z;
+    }
     #endregion
 
 
