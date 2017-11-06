@@ -34,3 +34,4 @@ sysinfo.txt
 *.unitypackage
 Twisted/Library/
 Twisted/Temp/
+Twisted/.vs/
