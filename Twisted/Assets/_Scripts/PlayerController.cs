@@ -20,12 +20,17 @@ public class PlayerController : MonoBehaviour {
             if (m_jumpsToDo > 0) {
                 m_jumpsToDo--;
             }
+            m_audioSource.Play();
             StartCoroutine(DoJump());
             StartCoroutine(WaitForState(IDLE_STATE, SetLanded));
         }
         else {
             m_jumpsToDo++;
         }
+    }
+
+    public void SetAnimatorSpeed (float speed) {
+        m_animator.speed = speed;
     }
 
     #endregion
@@ -48,6 +53,9 @@ public class PlayerController : MonoBehaviour {
     bool m_isJumping = false;
     int m_jumpsToDo = 0;
     Vector3 m_initialPosition;
+    private AudioSource m_audioSource;
+    private AudioClip m_jump;
+    private AudioClip m_death;
 
     private void Awake () {
         m_animator = GetComponent<Animator>();
@@ -56,8 +64,12 @@ public class PlayerController : MonoBehaviour {
         m_graphicAsset = transform.GetChild(0);
         m_perimeter = 2.0f * Mathf.PI * (m_graphicAsset.localScale.x / 2.0f);
         m_initialPosition = transform.position;
+        m_audioSource = GetComponent<AudioSource>();
+        m_jump = Resources.Load("SFX/jump") as AudioClip;
+        m_death = Resources.Load("SFX/death") as AudioClip;
 
-        Init();
+
+        Init ();
     }
 
     private void Init () {
@@ -68,6 +80,7 @@ public class PlayerController : MonoBehaviour {
         m_animator.SetBool(m_jumpParameterId, false);
         m_animator.SetBool(m_fallParameterId, false);
         m_jumpsToDo = 0;
+        m_audioSource.clip = m_jump;
     }
 
     private void Update () {
@@ -124,8 +137,19 @@ public class PlayerController : MonoBehaviour {
     }
 
     private void Fall () {
+        m_audioSource.clip = m_death;
+        m_audioSource.Play();
         m_animator.SetBool(m_fallParameterId, true);
     }
-    #endregion
 
+
+    private void OnTriggerEnter (Collider other) {
+        if (other.CompareTag("Collectible")) {
+            Debug.Log("PickUp");
+            GameManager.Instance.AddCollectible();
+            other.GetComponent<Collectible>().Disappear();
+        }
+    }
+
+    #endregion
 }

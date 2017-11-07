@@ -69,8 +69,8 @@ public class ScreenManager : MonoBehaviour {
     }
 
     void Transition () {
-        AnimateScreenOpening();
         FinaliseScreenClosing();
+        AnimateScreenOpening();
     }
     void FinaliseScreenClosing () {
         m_currentlyOpenScreen.gameObject.SetActive(false);
@@ -79,13 +79,14 @@ public class ScreenManager : MonoBehaviour {
 
     void AnimateScreenOpening () {
         m_screenToOpen.gameObject.SetActive(true);
+        m_currentlyOpenScreen = m_screenToOpen;
         m_screenToOpen.transform.SetAsLastSibling();
         m_screenToOpen.SetBool(m_isOpenParameter, true);
         StartCoroutine(WaitForScreenState(m_screenToOpen, OPEN_STATE_NAME, RecordScreenAsOpened));
     }
 
     void RecordScreenAsOpened () {
-        m_currentlyOpenScreen = m_screenToOpen;
+        
         m_screenToOpen = null;
     }
 

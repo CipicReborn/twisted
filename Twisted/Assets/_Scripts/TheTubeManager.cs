@@ -20,7 +20,8 @@ public class TheTubeManager : MonoBehaviour {
     #region PUBLIC
 
     public float Speed = 0;
-
+    public float rotationDuration = 0.5f;
+    public Color[] Colors;
 
     public void SetModeGame () {
         m_tubeBuilder.GenerateAdditionnalSegments();
@@ -31,6 +32,7 @@ public class TheTubeManager : MonoBehaviour {
         m_tubeBuilder.StopGeneratingSegments();
         m_DoAction = DoActionVoid;
     }
+
     public void SetModeMenu () {
         m_tubeBuilder.StopGeneratingSegments();
         m_tubeCleaner.ClearAllSegments();
@@ -53,6 +55,17 @@ public class TheTubeManager : MonoBehaviour {
         m_currentSegment.transform.GetChild(0).GetComponent<MeshRenderer>().material = Resources.Load("RedFloor") as Material;
     }
 
+    public void ChangeSegmentsColor () {
+        m_colorIndex++;
+        Utils.LoopValue(ref m_colorIndex, 0, Colors.Length - 1);
+        for (int i = 0; i < transform.childCount; i++) {
+            transform.GetChild(i).GetComponent<Segment>().SetColor(Colors[m_colorIndex]);
+        }
+    }
+
+    public Color GetColor () {
+        return Colors[m_colorIndex];
+    }
     #endregion
 
 
@@ -67,6 +80,8 @@ public class TheTubeManager : MonoBehaviour {
     int m_currentQuaternionIndex = 0;
     float[] m_currentSegmentBoundaries = { 0, 0 };
 
+    int m_colorIndex = 0;
+
     readonly Quaternion[] ROTATIONS = {
         Quaternion.identity,
         Quaternion.AngleAxis(45.0f, Vector3.forward),
@@ -77,6 +92,8 @@ public class TheTubeManager : MonoBehaviour {
         Quaternion.AngleAxis(270.0f, Vector3.forward),
         Quaternion.AngleAxis(315.0f, Vector3.forward)
     };
+
+    
 
     private void Awake () {
         instance = this;
@@ -123,7 +140,6 @@ public class TheTubeManager : MonoBehaviour {
         m_currentQuaternionIndex = newIndex;
     }
 
-    public float rotationDuration = 0.5f;
 
     IEnumerator DoRotate (Quaternion from, Quaternion to) {
         float arrivalTime = Time.time + rotationDuration;
