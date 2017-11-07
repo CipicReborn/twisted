@@ -50,8 +50,8 @@ public class GameManager : MonoBehaviour {
 
     public void Continue () {
         m_speedUpThreshold = 10 + m_currentLevel * m_thresholdIncreaseFactor;
-        m_collectibleThreshold += 0.15f;
-        m_collectibleThreshold = Mathf.Clamp(m_collectibleThreshold, 0.45f, 0.8f);
+        m_collectibleThreshold += COLLECTIBLE_THRESHOLD_INCREASE;
+        m_collectibleThreshold = Mathf.Clamp(m_collectibleThreshold, COLLECTIBLE_MIN_THRESHOLD, COLLECTIBLE_MAX_THRESHOLD);
         GoToMainMenu();
     }
 
@@ -106,7 +106,11 @@ public class GameManager : MonoBehaviour {
     int m_currentLevel = 0;
     int m_thresholdIncreaseFactor = 3;
 
-    float m_collectibleThreshold = 0.85f;
+    const float COLLECTIBLE_MIN_THRESHOLD = 0.35f;
+    const float COLLECTIBLE_MAX_THRESHOLD = 0.85f;
+    const float COLLECTIBLE_THRESHOLD_DECREASE = -0.045f;
+    const float COLLECTIBLE_THRESHOLD_INCREASE = 0.15f;
+    float m_collectibleThreshold = COLLECTIBLE_MAX_THRESHOLD;
 
     void Awake () {
         instance = this;
@@ -132,7 +136,7 @@ public class GameManager : MonoBehaviour {
     private void ReinitLevel () {
         m_currentLevel = 0;
         m_speedUpThreshold = 10;
-        m_collectibleThreshold = 0.8f;
+        m_collectibleThreshold = COLLECTIBLE_MAX_THRESHOLD;
         TheTubeManager.Instance.Speed = 3.0f;
         TheTubeManager.Instance.rotationDuration = 0.4f;
         m_player.SetAnimatorSpeed(1);
@@ -165,8 +169,8 @@ public class GameManager : MonoBehaviour {
 
     public void SpeedUp () {
 
-        m_collectibleThreshold -= 0.04f;
-        m_collectibleThreshold = Mathf.Clamp(m_collectibleThreshold, 0.45f, 0.8f);
+        m_collectibleThreshold += COLLECTIBLE_THRESHOLD_DECREASE;
+        m_collectibleThreshold = Mathf.Clamp(m_collectibleThreshold, COLLECTIBLE_MIN_THRESHOLD, COLLECTIBLE_MAX_THRESHOLD);
         m_speedUpThreshold += 10 + m_currentLevel * m_thresholdIncreaseFactor;
 
         if (TheTubeManager.Instance.Speed < 8) {

@@ -65,7 +65,7 @@ public class PlayerController : MonoBehaviour {
         m_perimeter = 2.0f * Mathf.PI * (m_graphicAsset.localScale.x / 2.0f);
         m_initialPosition = transform.position;
         m_audioSource = GetComponent<AudioSource>();
-        m_jump = Resources.Load("SFX/jump") as AudioClip;
+        m_jump = Resources.Load("SFX/jump bass") as AudioClip;
         m_death = Resources.Load("SFX/death") as AudioClip;
 
 
